@@ -25,5 +25,5 @@ object ApplicationConfig {
         }
     }
 
-    val fireClient: FireClient = FireClient(messageDigest, httpClient)
+    val fireClient: FireClient = FireClient(httpClient, messageDigest)
 }

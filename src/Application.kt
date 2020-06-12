@@ -22,6 +22,7 @@ import io.ktor.client.features.auth.providers.basic
 import io.ktor.util.InternalAPI
 import uk.ac.ebi.uk.ac.ebi.submitter.api.FireClient
 import uk.ac.ebi.uk.ac.ebi.submitter.config.ApplicationConfig.fireClient
+import uk.ac.ebi.uk.ac.ebi.submitter.service.SubmissionService
 import java.nio.file.Paths
 import java.security.MessageDigest
 
@@ -44,16 +45,15 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    val submissionService = SubmissionService(fireClient)
+
     routing {
         get("/files") {
             call.respond(fireClient.listAll())
         }
 
         post("/submissions") {
-            val file = Paths.get("/home/jhoanmanuelms/EBI/studies/test/test-file.txt").toFile()
-            val submissionPath = "/S-BSST/S-BSST0-99/S-BSST2/${file.name}"
-
-            call.respond(fireClient.saveSubmissionFile(file, submissionPath, "S-BSST2")!!)
+            call.respond(submissionService.submit(call.receive()))
         }
     }
 }
