@@ -44,34 +44,7 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-//    val client = HttpClient(Apache) {
-//        install(Auth) {
-//        }
-//        install(JsonFeature) {
-//            serializer = GsonSerializer()
-//        }
-//        install(Logging) {
-//            level = LogLevel.HEADERS
-//        }
-//        BrowserUserAgent() // install default browser-like user-agent
-//        // install(UserAgent) { agent = "some user agent" }
-//    }
-//    runBlocking {
-//        // Sample for making a HTTP Client request
-//        /*
-//        val message = client.post<JsonSampleClass> {
-//            url("http://127.0.0.1:8080/path/to/endpoint")
-//            contentType(ContentType.Application.Json)
-//            body = JsonSampleClass(hello = "world")
-//        }
-//        */
-//    }
-
     routing {
-//        get("/") {
-//            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
-//        }
-
         get("/files") {
             call.respond(fireClient.listAll())
         }
@@ -82,19 +55,5 @@ fun Application.module(testing: Boolean = false) {
 
             call.respond(fireClient.saveSubmissionFile(file, submissionPath, "S-BSST2")!!)
         }
-
-//        authenticate("myBasicAuth") {
-//            get("/protected/route/basic") {
-//                val principal = call.principal<UserIdPrincipal>()!!
-//                call.respondText("Hello ${principal.name}")
-//            }
-//        }
-//
-//        get("/json/jackson") {
-//            call.respond(mapOf("hello" to "world"))
-//        }
     }
 }
-
-//data class JsonSampleClass(val hello: String)
-
