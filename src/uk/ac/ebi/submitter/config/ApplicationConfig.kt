@@ -5,8 +5,8 @@ import io.ktor.client.features.auth.Auth
 import io.ktor.client.features.auth.providers.basic
 import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
-import uk.ac.ebi.uk.ac.ebi.submitter.api.FireClient
 import java.security.MessageDigest
+import uk.ac.ebi.uk.ac.ebi.submitter.api.FireClient
 
 object ApplicationConfig {
     val messageDigest: MessageDigest = MessageDigest.getInstance("MD5")
@@ -25,5 +25,5 @@ object ApplicationConfig {
         }
     }
 
-    val fireClient: FireClient = FireClient(httpClient, messageDigest)
+    val fireClient: FireClient = FireClient(httpClient)
 }

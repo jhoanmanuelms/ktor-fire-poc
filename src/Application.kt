@@ -1,37 +1,28 @@
 package uk.ac.ebi
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.auth.*
-import com.fasterxml.jackson.databind.*
-import io.ktor.jackson.*
-import io.ktor.features.*
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.client.features.auth.*
-import io.ktor.client.features.json.*
-import io.ktor.client.request.*
-import kotlinx.coroutines.*
-import io.ktor.client.features.logging.*
-import io.ktor.client.features.UserAgent
-import io.ktor.client.features.BrowserUserAgent
-import io.ktor.client.features.auth.providers.basic
+import com.fasterxml.jackson.databind.SerializationFeature
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.basic
+import io.ktor.features.ContentNegotiation
+import io.ktor.jackson.jackson
+import io.ktor.request.receive
+import io.ktor.response.respond
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.routing
 import io.ktor.util.InternalAPI
-import uk.ac.ebi.uk.ac.ebi.submitter.api.FireClient
 import uk.ac.ebi.uk.ac.ebi.submitter.config.ApplicationConfig.fireClient
+import uk.ac.ebi.uk.ac.ebi.submitter.config.ApplicationConfig.messageDigest
 import uk.ac.ebi.uk.ac.ebi.submitter.service.SubmissionService
-import java.nio.file.Paths
-import java.security.MessageDigest
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @InternalAPI
-@Suppress("unused") // Referenced in application.conf
-@kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.module() {
     install(Authentication) {
         basic("myBasicAuth") {
             realm = "Ktor Server"
@@ -45,15 +36,34 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    val submissionService = SubmissionService(fireClient)
+    val submissionService = SubmissionService(fireClient, messageDigest)
 
     routing {
         get("/files") {
             call.respond(fireClient.listAll())
         }
 
-        post("/submissions") {
+        post("/submissions/submit") {
             call.respond(submissionService.submit(call.receive()))
+        }
+
+        post("/submissions/resubmit") {
+            call.respond(submissionService.resubmit(call.receive()))
+        }
+
+        get("/submissions/{accNo}/files") {
+            val accNo = call.parameters["accNo"].toString()
+            call.respond(submissionService.findSubmissionFiles(accNo))
+        }
+
+        post("/submissions/{accNo}/publish") {
+            val accNo = call.parameters["accNo"].toString()
+            call.respond(submissionService.publish(accNo))
+        }
+
+        post("/submissions/{accNo}/unpublish") {
+            val accNo = call.parameters["accNo"].toString()
+            call.respond(submissionService.unpublish(accNo))
         }
     }
 }
